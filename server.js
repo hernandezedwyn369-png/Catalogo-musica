@@ -5,7 +5,7 @@ const multer = require('multer');
 const path = require('path');
 require('dotenv').config();
 
-const Cancion = require('./models/Cancion');
+const Cancion = require('./models/cancion');
 
 const app = express();
 
@@ -178,10 +178,12 @@ res.status(500).json(error);
 
 });
 
-app.listen(3000, ()=>{
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
 
 console.log(
-'Servidor ejecutándose en puerto 3000'
+`Servidor ejecutándose en puerto ${PORT}`
 );
 
 });
