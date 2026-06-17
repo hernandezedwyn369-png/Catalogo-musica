@@ -5,7 +5,7 @@ const multer = require('multer');
 const path = require('path');
 require('dotenv').config();
 
-const Cancion = require('./models/cancion');
+const cancion = require('./models/cancion');
 
 const app = express();
 
