@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>MusicCloud</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-gray-200 min-h-screen p-8">
+
+<h1 class="text-5xl font-bold text-center mb-10">
+🎵 Catalogo de Musica ED
+</h1>
+
+<div class="max-w-6xl mx-auto">
+
+<div class="bg-white p-8 rounded-xl shadow-lg">
+
+<form
+action="/api/canciones"
+method="POST"
+enctype="multipart/form-data"
+class="space-y-4">
+
+<input
+type="text"
+name="titulo"
+placeholder="Título de la canción"
+required
+class="w-full border p-3 rounded">
+
+<input
+type="text"
+name="artista"
+placeholder="Artista"
+required
+class="w-full border p-3 rounded">
+
+<input
+type="text"
+name="genero"
+placeholder="Género"
+required
+class="w-full border p-3 rounded">
+
+<input
+type="text"
+name="album"
+placeholder="Álbum"
+class="w-full border p-3 rounded">
+
+<div>
+
+<label class="font-semibold">
+Portada
+</label>
+
+<input
+type="file"
+name="portada"
+accept="image/*"
+required>
+
+</div>
+
+<div>
+
+<label class="font-semibold">
+Audio MP3
+</label>
+
+<input
+type="file"
+name="audio"
+accept="audio/*"
+required>
+
+</div>
+
+<button
+class="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700">
+
+Guardar Canción
+
+</button>
+
+</form>
+
+</div>
+
+<h2 class="text-4xl font-bold mt-10 mb-5">
+
+Canciones Registradas
+
+</h2>
+
+<div
+id="catalogo"
+class="grid md:grid-cols-3 gap-6">
+
+</div>
+
+</div>
+
+<script>
+
+async function cargarCanciones(){
+
+const respuesta =
+await fetch('/api/canciones');
+
+const canciones =
+await respuesta.json();
+
+const catalogo =
+document.getElementById('catalogo');
+
+catalogo.innerHTML = '';
+
+canciones.forEach(cancion=>{
+
+catalogo.innerHTML += `
+
+<div
+class="bg-white rounded-xl shadow-lg overflow-hidden">
+
+<img
+src="/${cancion.portadaUrl}"
+class="w-full h-64 object-cover">
+
+<div class="p-4">
+
+<h3 class="text-2xl font-bold">
+${cancion.titulo}
+</h3>
+
+<p>
+<b>Artista:</b>
+${cancion.artista}
+</p>
+
+<p>
+<b>Género:</b>
+${cancion.genero}
+</p>
+
+<p>
+<b>Álbum:</b>
+${cancion.album || 'N/A'}
+</p>
+
+<audio
+controls
+class="w-full mt-4">
+
+<source
+src="/${cancion.audioUrl}">
+
+</audio>
+
+<button
+onclick="editar(
+'${cancion._id}',
+'${cancion.titulo}',
+'${cancion.artista}',
+'${cancion.genero}',
+'${cancion.album || ""}'
+)"
+class="bg-yellow-500 text-white w-full mt-4 p-2 rounded hover:bg-yellow-600">
+
+Editar
+
+</button>
+
+<button
+onclick="eliminar('${cancion._id}')"
+class="bg-red-500 text-white w-full mt-2 p-2 rounded hover:bg-red-600">
+
+Eliminar
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+async function editar(
+id,
+tituloActual,
+artistaActual,
+generoActual,
+albumActual
+){
+
+const titulo =
+prompt("Nuevo título:", tituloActual);
+
+if(titulo === null) return;
+
+const artista =
+prompt("Nuevo artista:", artistaActual);
+
+if(artista === null) return;
+
+const genero =
+prompt("Nuevo género:", generoActual);
+
+if(genero === null) return;
+
+const album =
+prompt("Nuevo álbum:", albumActual);
+
+if(album === null) return;
+
+await fetch(
+`/api/canciones/${id}`,
+{
+method:'PUT',
+
+headers:{
+'Content-Type':'application/json'
+},
+
+body: JSON.stringify({
+
+titulo,
+artista,
+genero,
+album
+
+})
+
+}
+);
+
+cargarCanciones();
+
+}
+
+async function eliminar(id){
+
+const confirmar =
+confirm("¿Deseas eliminar esta canción?");
+
+if(!confirmar) return;
+
+await fetch(
+`/api/canciones/${id}`,
+{
+method:'DELETE'
+}
+);
+
+cargarCanciones();
+
+}
+
+cargarCanciones();
+
+</script>
+
+</body>
+</html>
